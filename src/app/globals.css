@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #06090f;
+  --foreground: #f3e8c8;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-geist-sans), sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .quest-frame-shell {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(8, 7, 8, 0.72), rgba(10, 8, 9, 0.86));
+    border: 1px solid rgba(245, 188, 82, 0.2);
+  }
+
+  .quest-frame-inner {
+    padding: 1.25rem;
+  }
+
+  .quest-panel,
+  .quest-frame-shell :is(section, article, div).rounded-md.border,
+  .quest-frame-shell :is(section, article, div).rounded-xl.border,
+  .quest-frame-shell :is(section, article, div).rounded-2xl.border,
+  .quest-frame-shell :is(section, article, div).rounded-3xl.border {
+    position: relative;
+    overflow: hidden;
+    border-color: rgba(223, 168, 74, 0.34);
+    box-shadow:
+      0 14px 24px rgba(0, 0, 0, 0.34),
+      inset 0 0 0 1px rgba(245, 199, 112, 0.1),
+      inset 0 0 28px rgba(245, 199, 112, 0.05);
+    backdrop-filter: blur(4px);
+  }
+
+  .quest-panel::before,
+  .quest-frame-shell :is(section, article, div).rounded-md.border::before,
+  .quest-frame-shell :is(section, article, div).rounded-xl.border::before,
+  .quest-frame-shell :is(section, article, div).rounded-2xl.border::before,
+  .quest-frame-shell :is(section, article, div).rounded-3xl.border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(150deg, rgba(35, 25, 18, 0.74), rgba(10, 9, 10, 0.9)),
+      radial-gradient(120% 80% at 0% 0%, rgba(230, 182, 86, 0.15), transparent 45%),
+      radial-gradient(80% 70% at 100% 100%, rgba(72, 106, 168, 0.1), transparent 55%);
+    pointer-events: none;
+  }
+
+  .quest-panel::after,
+  .quest-frame-shell :is(section, article, div).rounded-md.border::after,
+  .quest-frame-shell :is(section, article, div).rounded-xl.border::after,
+  .quest-frame-shell :is(section, article, div).rounded-2xl.border::after,
+  .quest-frame-shell :is(section, article, div).rounded-3xl.border::after {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border-radius: inherit;
+    border: 1px solid rgba(232, 183, 93, 0.28);
+    background:
+      linear-gradient(90deg, rgba(232, 183, 93, 0.62), rgba(232, 183, 93, 0.62)) top left / 26px 1px no-repeat,
+      linear-gradient(180deg, rgba(232, 183, 93, 0.62), rgba(232, 183, 93, 0.62)) top left / 1px 26px no-repeat,
+      linear-gradient(90deg, rgba(232, 183, 93, 0.62), rgba(232, 183, 93, 0.62)) top right / 26px 1px no-repeat,
+      linear-gradient(180deg, rgba(232, 183, 93, 0.62), rgba(232, 183, 93, 0.62)) top right / 1px 26px no-repeat,
+      linear-gradient(90deg, rgba(232, 183, 93, 0.62), rgba(232, 183, 93, 0.62)) bottom left / 26px 1px no-repeat,
+      linear-gradient(180deg, rgba(232, 183, 93, 0.62), rgba(232, 183, 93, 0.62)) bottom left / 1px 26px no-repeat,
+      linear-gradient(90deg, rgba(232, 183, 93, 0.62), rgba(232, 183, 93, 0.62)) bottom right / 26px 1px no-repeat,
+      linear-gradient(180deg, rgba(232, 183, 93, 0.62), rgba(232, 183, 93, 0.62)) bottom right / 1px 26px no-repeat;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  .quest-panel-solid::before,
+  .quest-frame-shell .quest-panel-solid::before {
+    background: linear-gradient(155deg, rgba(27, 20, 15, 0.9), rgba(13, 11, 12, 0.95));
+  }
+
+  .quest-panel-texture::before,
+  .quest-frame-shell .quest-panel-texture::before {
+    background:
+      linear-gradient(150deg, rgba(35, 25, 18, 0.74), rgba(10, 9, 10, 0.9)),
+      radial-gradient(120% 80% at 0% 0%, rgba(230, 182, 86, 0.15), transparent 45%),
+      radial-gradient(80% 70% at 100% 100%, rgba(72, 106, 168, 0.1), transparent 55%),
+      repeating-linear-gradient(135deg, rgba(245, 208, 132, 0.03) 0 2px, transparent 2px 6px);
+  }
+
+  .quest-panel > *,
+  .quest-frame-shell :is(section, article, div).rounded-md.border > *,
+  .quest-frame-shell :is(section, article, div).rounded-xl.border > *,
+  .quest-frame-shell :is(section, article, div).rounded-2xl.border > *,
+  .quest-frame-shell :is(section, article, div).rounded-3xl.border > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .quest-dark-outline {
+    color: #24160f;
+    -webkit-text-stroke: 0.4px rgba(255, 243, 214, 0.82);
+    text-shadow:
+      0 1px 0 rgba(255, 240, 205, 0.92),
+      0 -1px 0 rgba(255, 240, 205, 0.92),
+      1px 0 0 rgba(255, 240, 205, 0.92),
+      -1px 0 0 rgba(255, 240, 205, 0.92),
+      1px 1px 0 rgba(255, 240, 205, 0.72),
+      -1px 1px 0 rgba(255, 240, 205, 0.72),
+      1px -1px 0 rgba(255, 240, 205, 0.72),
+      -1px -1px 0 rgba(255, 240, 205, 0.72);
+  }
+
+  .quest-dark-outline-soft {
+    color: #2a1b12;
+    -webkit-text-stroke: 0.25px rgba(255, 246, 224, 0.72);
+    text-shadow:
+      0 1px 0 rgba(255, 243, 216, 0.82),
+      1px 0 0 rgba(255, 243, 216, 0.82),
+      -1px 0 0 rgba(255, 243, 216, 0.82),
+      0 -1px 0 rgba(255, 243, 216, 0.82);
+  }
+}

@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: quest-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: quest
+      POSTGRES_USER: quest
+      POSTGRES_PASSWORD: quest
+    ports:
+      - "5432:5432"
+    volumes:
+      - quest_pg_data:/var/lib/postgresql/data
+
+volumes:
+  quest_pg_data:

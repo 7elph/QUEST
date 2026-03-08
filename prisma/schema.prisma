@@ -1,0 +1,545 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADVENTURER
+  PATRON
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum Availability {
+  FULL_TIME
+  PART_TIME
+  WEEKENDS
+  FLEXIBLE
+  UNAVAILABLE
+}
+
+enum RankName {
+  E
+  D
+  C
+  B
+  A
+  S
+}
+
+enum MissionCategory {
+  ATENDIMENTO_SUPORTE
+  VENDAS_PROSPECCAO
+  OPERACOES_PLANILHAS
+  DESIGN_RAPIDO
+  CONTEUDO_COPY
+  SOCIAL_MEDIA_LOCAL
+  AUTOMACAO_NO_CODE
+}
+
+enum DeliverableFormat {
+  LINK
+  FILE
+  BOTH
+}
+
+enum BudgetRange {
+  LOW
+  MEDIUM
+  HIGH
+  PREMIUM
+}
+
+enum RewardType {
+  TRAINING_XP
+  SPONSORED_CASH
+  MIXED
+}
+
+enum EscrowStatus {
+  NONE
+  PENDING
+  CONFIRMED
+  RELEASED
+  REFUNDED
+}
+
+enum MissionStatus {
+  DRAFT
+  OPEN
+  ASSIGNED
+  IN_REVIEW
+  REVISION_REQUESTED
+  COMPLETED
+  DISPUTED
+  CANCELLED
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  ACCEPTED
+  REVISION_REQUESTED
+  REJECTED
+}
+
+enum ReviewDecision {
+  ACCEPT
+  REVISION
+  REJECT
+}
+
+enum DisputeStatus {
+  OPEN
+  RESOLVED
+}
+
+enum FounderTier {
+  INICIADO
+  FUNDADOR
+  PATRONO_INICIAL
+}
+
+enum FounderPledgeStatus {
+  PENDING
+  CONFIRMED
+}
+
+enum AdminScope {
+  SUPER_ADMIN
+  MODERATOR
+  FINANCE
+  OPS
+}
+
+enum NotificationType {
+  SYSTEM
+  MISSION
+  REVIEW
+  DISPUTE
+  ESCROW
+  FOUNDER
+}
+
+enum DigestType {
+  DAILY
+  WEEKLY
+}
+
+enum MissionTemplateVisibility {
+  SYSTEM
+  PATRON
+}
+
+enum ErrorSource {
+  SERVER
+  CLIENT
+  EDGE
+}
+
+enum ScreeningDecision {
+  PASS
+  REVIEW
+  BLOCK
+  ERROR
+}
+
+model User {
+  id             String         @id @default(cuid())
+  name           String?
+  nick           String?
+  email          String         @unique
+  phone          String?
+  city           String?
+  state          String?
+  role           Role
+  adminScope     AdminScope?
+  passwordHash   String
+  status         UserStatus     @default(ACTIVE)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  profile        Profile?
+  missionsAsPatron Mission[]    @relation("PatronMissions")
+  missionsAsAdventurer Mission[] @relation("AssignedMissions")
+  submissions    Submission[]
+  reviews        Review[]       @relation("PatronReviews")
+  xpLogs         XPLog[]
+  disputesOpened Dispute[]      @relation("OpenedDisputes")
+  disputesResolved Dispute[]    @relation("ResolvedDisputes")
+  auditLogs      AuditLog[]     @relation("AuditActor")
+  founderPledges FounderPledge[]
+  passwordResetTokens PasswordResetToken[]
+  notifications  Notification[]
+  notificationDigests NotificationDigest[]
+  uploadedAssets UploadedAsset[]
+  errorEvents    ErrorEvent[]
+  missionProgresses MissionProgress[]
+  assessment AdventurerAssessment?
+  screeningsReviewed MissionScreening[] @relation("ScreeningReviewer")
+  missionDraft   MissionDraft?
+  missionTemplates MissionTemplate[] @relation("TemplateOwner")
+}
+
+model Profile {
+  id           String       @id @default(cuid())
+  userId       String       @unique
+  bio          String?
+  avatarUrl    String?
+  skills       String[]
+  availability Availability @default(FLEXIBLE)
+  portfolioUrl String?
+  badges       String[]
+  rankId       String?
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rank         Rank?        @relation(fields: [rankId], references: [id])
+}
+
+model Rank {
+  id       String    @id @default(cuid())
+  name     RankName  @unique
+  minXP    Int
+  maxXP    Int
+  perks    Json
+  profiles Profile[]
+}
+
+model Mission {
+  id                String           @id @default(cuid())
+  patronId          String
+  title             String
+  narrative         String
+  rpgTitle          String?
+  rpgNarrative      String?
+  rpgRewardFlavor   String?
+  category          MissionCategory
+  missionType       String           @default("Operacao Digital")
+  scope             String
+  desiredFormat     String?
+  victoryConditions String[]
+  maxRevisions      Int              @default(1)
+  deliverableFormat DeliverableFormat
+  deadlineAt        DateTime
+  city              String           @default("Piracicaba")
+  state             String           @default("SP")
+  neighborhood      String           @default("Centro")
+  minRank           RankName         @default(E)
+  budgetRange       BudgetRange
+  rewardType        RewardType
+  sponsored         Boolean          @default(false)
+  escrowStatus      EscrowStatus     @default(NONE)
+  status            MissionStatus    @default(DRAFT)
+  assignedTo        String?
+  templateId        String?
+  assignedAt        DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  patron            User             @relation("PatronMissions", fields: [patronId], references: [id])
+  assignedUser      User?            @relation("AssignedMissions", fields: [assignedTo], references: [id])
+  template          MissionTemplate? @relation(fields: [templateId], references: [id])
+  submissions       Submission[]
+  reviews           Review[]
+  dispute           Dispute?
+  xpLogs            XPLog[]
+  progressRecords   MissionProgress[]
+  screening         MissionScreening?
+  uploadedAssets    UploadedAsset[]
+
+  @@index([status, category])
+  @@index([status, minRank])
+  @@index([city, state, neighborhood])
+  @@index([patronId])
+  @@index([assignedTo])
+  @@index([deadlineAt])
+}
+
+model Submission {
+  id            String           @id @default(cuid())
+  missionId     String
+  adventurerId  String
+  proofLinks    String[]
+  proofFiles    String[]
+  notes         String?
+  submittedAt   DateTime         @default(now())
+  updatedAt     DateTime         @default(now()) @updatedAt
+  status        SubmissionStatus @default(SUBMITTED)
+  revisionCount Int              @default(0)
+  mission       Mission          @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  adventurer    User             @relation(fields: [adventurerId], references: [id])
+  revisions     SubmissionRevision[]
+  uploadedAssets UploadedAsset[]
+
+  @@index([missionId])
+  @@index([adventurerId])
+  @@unique([missionId, adventurerId])
+}
+
+model UploadedAsset {
+  id           String      @id @default(cuid())
+  userId       String
+  missionId    String?
+  submissionId String?
+  url          String      @unique
+  fileName     String
+  mimeType     String
+  sizeBytes    Int
+  usedAt       DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mission      Mission?    @relation(fields: [missionId], references: [id], onDelete: SetNull)
+  submission   Submission? @relation(fields: [submissionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([missionId, usedAt])
+  @@index([submissionId, usedAt])
+}
+
+model Review {
+  id        String         @id @default(cuid())
+  missionId String
+  patronId  String
+  decision  ReviewDecision
+  comment   String?
+  createdAt DateTime       @default(now())
+  mission   Mission        @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  patron    User           @relation("PatronReviews", fields: [patronId], references: [id])
+
+  @@index([missionId])
+}
+
+model XPLog {
+  id        String   @id @default(cuid())
+  userId    String
+  missionId String?
+  xpChange  Int
+  reason    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  mission   Mission? @relation(fields: [missionId], references: [id])
+
+  @@index([userId])
+}
+
+model Dispute {
+  id            String       @id @default(cuid())
+  missionId      String       @unique
+  openedBy       String
+  reason         String
+  evidenceNotes  String?
+  status         DisputeStatus @default(OPEN)
+  resolution     String?
+  resolvedBy     String?
+  createdAt      DateTime     @default(now())
+  resolvedAt     DateTime?
+  mission        Mission      @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  openedByUser   User         @relation("OpenedDisputes", fields: [openedBy], references: [id])
+  resolvedByUser User?        @relation("ResolvedDisputes", fields: [resolvedBy], references: [id])
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  targetType String
+  targetId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  actor     User?    @relation("AuditActor", fields: [actorId], references: [id])
+
+  @@index([action, createdAt])
+  @@index([targetType, targetId, createdAt])
+}
+
+model FounderPledge {
+  id        String             @id @default(cuid())
+  userId    String
+  tier      FounderTier
+  status    FounderPledgeStatus @default(PENDING)
+  proofUrl  String?
+  createdAt DateTime           @default(now())
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  usedAt    DateTime?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
+model MissionTemplate {
+  id                        String                    @id @default(cuid())
+  createdById               String?
+  visibility                MissionTemplateVisibility @default(PATRON)
+  name                      String
+  category                  MissionCategory
+  scopeTemplate             String
+  victoryConditionsTemplate String[]
+  deliverableFormat         DeliverableFormat
+  budgetRange               BudgetRange
+  rewardType                RewardType
+  sponsoredDefault          Boolean                   @default(false)
+  narrativeTemplate         String?
+  active                    Boolean                   @default(true)
+  createdAt                 DateTime                  @default(now())
+  updatedAt                 DateTime                  @updatedAt
+  createdBy                 User?                     @relation("TemplateOwner", fields: [createdById], references: [id])
+  missions                  Mission[]
+}
+
+model MissionDraft {
+  id         String   @id @default(cuid())
+  patronId   String   @unique
+  payload    Json?
+  currentStep Int     @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  patron     User     @relation(fields: [patronId], references: [id], onDelete: Cascade)
+}
+
+model SubmissionRevision {
+  id           String   @id @default(cuid())
+  submissionId String
+  version      Int
+  proofLinks   String[]
+  proofFiles   String[]
+  notes        String?
+  createdAt    DateTime @default(now())
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@unique([submissionId, version])
+  @@index([submissionId, createdAt])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType @default(SYSTEM)
+  title     String
+  message   String
+  metadata  Json?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
+}
+
+model NotificationDigest {
+  id       String    @id @default(cuid())
+  userId   String
+  type     DigestType
+  payload  Json?
+  sentAt   DateTime  @default(now())
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sentAt])
+}
+
+model RateLimitBucket {
+  key       String   @id
+  count     Int
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MissionProgress {
+  id            String   @id @default(cuid())
+  missionId     String
+  adventurerId  String
+  checklistState Boolean[]
+  completionPct Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  mission       Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  adventurer    User     @relation(fields: [adventurerId], references: [id], onDelete: Cascade)
+
+  @@unique([missionId, adventurerId])
+  @@index([missionId, updatedAt])
+  @@index([adventurerId, updatedAt])
+}
+
+model AdventurerAssessment {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  resultProfile  String
+  dominantSkills String[]
+  skillScores    Json
+  answers        Json
+  completedAt    DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([completedAt])
+}
+
+model MissionScreening {
+  id             String            @id @default(cuid())
+  missionId      String            @unique
+  model          String
+  decision       ScreeningDecision
+  confidence     Float?
+  summary        String?
+  flags          String[]
+  raw            Json?
+  reviewedBy     String?
+  reviewedAt     DateTime?
+  reviewedComment String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  mission        Mission           @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  reviewer       User?             @relation("ScreeningReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@index([decision, createdAt])
+  @@index([reviewedBy, reviewedAt])
+}
+
+model ErrorEvent {
+  id         String      @id @default(cuid())
+  requestId  String?
+  route      String?
+  method     String?
+  statusCode Int?
+  source     ErrorSource @default(SERVER)
+  message    String
+  stack      String?
+  userId     String?
+  metadata   Json?
+  createdAt  DateTime    @default(now())
+  user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt, source])
+  @@index([requestId, createdAt])
+  @@index([route, createdAt])
+}
+
+model RuntimeSetting {
+  key       String   @id
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
