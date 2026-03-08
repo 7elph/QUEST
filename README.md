@@ -7,62 +7,24 @@ App completo do QUEST™: painel de missoes com camada RPG na UX e operacao obje
 - Veja a documentacao completa da baseline em [`VERSAO_0_QUEST.md`](./VERSAO_0_QUEST.md)
 - Historico de releases em [`CHANGELOG.md`](./CHANGELOG.md)
 
-## Dev (Thiago)
+## Ambiente e seguranca
 
-Use estas variaveis no `.env`:
+Copie `.env.example` para `.env` e defina seus valores:
 
 ```bash
-ADMIN_EMAIL=admin@quest.local
-ADMIN_PASSWORD=Quest1234!
-ALPHA_MODE=true
-ESCROW_MODE=manual
-DEMO_SEED=true
-DEMO_ENTERPRISE_EMAIL=enterprise@quest.local
-DEMO_ENTERPRISE_PASSWORD=QuestEnterprise123!
-DEMO_ADVENTURER_EMAIL=aventureiro.demo@quest.local
-DEMO_ADVENTURER_PASSWORD=QuestAventura123!
-OLLAMA_ENABLED=true
-OLLAMA_BASE_URL=http://127.0.0.1:11434
-OLLAMA_MODEL=phi3:mini
-OLLAMA_RETRY_ATTEMPTS=1
-OLLAMA_RETRY_BACKOFF_MS=700
-OLLAMA_DISPUTE_COMPLETE_MIN_CONFIDENCE=0.78
-OLLAMA_DISPUTE_BLOCK_COMPLETE_ON_HIGH=true
-OLLAMA_DISPUTE_MODEL=phi3:mini
-OLLAMA_DISPUTE_TIMEOUT_MS=45000
-MISSION_APPROVAL_MODE=direct
-OLLAMA_MISSION_MODEL=phi3:mini
-OLLAMA_MISSION_TIMEOUT_MS=30000
-RPG_LLM_KEY=
-RPG_LLM_ENABLED=true
-OLLAMA_RPG_MODEL=phi3:mini
-OLLAMA_RPG_TIMEOUT_MS=35000
-OLLAMA_SIMULATION_MODEL=phi3:mini
-OLLAMA_SIMULATION_TIMEOUT_MS=45000
-SENTRY_ENABLED=false
-SENTRY_DSN=
-NEXT_PUBLIC_SENTRY_ENABLED=false
-NEXT_PUBLIC_SENTRY_DSN=
-QUEST_SKIP_DOCKER=false
-QUEST_SKIP_QUALITY=false
-QUEST_NO_DEV=false
-QUEST_SKIP_OLLAMA=false
-NGROK_ENABLED=false
-NGROK_AUTHTOKEN=
-NGROK_PORT=3000
-NGROK_REGION=sa
-NGROK_DOMAIN=
-OLLAMA_WARMUP_MODELS=
-OLLAMA_WARMUP_PROMPT=Responda apenas: OK
-LLM_SIM_EMAIL=llm.simulador@quest.local
-LLM_SIM_PASSWORD=Quest1234!
-LLM_SIM_NAME=Simulador LLM
-LLM_SIM_NICK=OraculoLLM
-LLM_SIM_PATRON_EMAIL=llm.patrono@quest.local
-LLM_SIM_PATRON_PASSWORD=Quest1234!
-LLM_SIM_PATRON_NAME=Patrono LLM
-LLM_SIM_PATRON_NICK=PatronoIA
+DATABASE_URL=postgresql://user:password@localhost:5432/quest?schema=public
+AUTH_SECRET=your-long-random-secret
+NEXTAUTH_URL=http://localhost:3000
+ADMIN_EMAIL=your-admin-email@example.com
+ADMIN_PASSWORD=your-strong-password
+DEMO_ENTERPRISE_EMAIL=your-enterprise-email@example.com
+DEMO_ENTERPRISE_PASSWORD=your-strong-password
+DEMO_ADVENTURER_EMAIL=your-adventurer-email@example.com
+DEMO_ADVENTURER_PASSWORD=your-strong-password
 ```
+
+- Todas as variaveis opcionais ficam no arquivo [`.env.example`](./.env.example).
+- Nunca publique credenciais reais em README, issues, PRs, screenshots ou commits.
 
 ## Stack
 
@@ -182,8 +144,7 @@ Fluxo recomendado (ngrok separado):
 
 Credenciais demo (geradas no seed):
 
-- Enterprise (papel Patrono): `enterprise@quest.local` / `QuestEnterprise123!`
-- Aventureiro: `aventureiro.demo@quest.local` / `QuestAventura123!`
+- Use as credenciais que voce configurou em `.env` (`DEMO_ENTERPRISE_*` e `DEMO_ADVENTURER_*`).
 
 - `quest:all`: completo (docker + migrate + seed + warm-up Ollama + lint + test + build + dev)
 - `quest:fast`: rapido para iteracao (docker + migrate + seed + dev, sem warm-up/lint/test/build)

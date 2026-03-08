@@ -53,8 +53,8 @@ function resolveScenario(scenario: LlmSimulationScenario) {
 
 export function getLlmSimulatorIdentity() {
   return {
-    email: (process.env.LLM_SIM_EMAIL ?? "llm.simulador@quest.local").toLowerCase(),
-    password: process.env.LLM_SIM_PASSWORD ?? "Quest1234!",
+    email: (process.env.LLM_SIM_EMAIL ?? "llm-simulator@example.com").toLowerCase(),
+    password: process.env.LLM_SIM_PASSWORD ?? "change-me-llm-simulator-password",
     name: process.env.LLM_SIM_NAME ?? "Simulador LLM",
     nick: process.env.LLM_SIM_NICK ?? "OraculoLLM",
   };
@@ -62,8 +62,8 @@ export function getLlmSimulatorIdentity() {
 
 export function getLlmPatronIdentity() {
   return {
-    email: (process.env.LLM_SIM_PATRON_EMAIL ?? "llm.patrono@quest.local").toLowerCase(),
-    password: process.env.LLM_SIM_PATRON_PASSWORD ?? "Quest1234!",
+    email: (process.env.LLM_SIM_PATRON_EMAIL ?? "llm-patron@example.com").toLowerCase(),
+    password: process.env.LLM_SIM_PATRON_PASSWORD ?? "change-me-llm-patron-password",
     name: process.env.LLM_SIM_PATRON_NAME ?? "Patrono LLM",
     nick: process.env.LLM_SIM_PATRON_NICK ?? "PatronoIA",
   };

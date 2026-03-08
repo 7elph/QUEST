@@ -301,11 +301,10 @@ export async function resetDemoData() {
   ]);
 
   const { adminId } = await seedCoreData();
-  const commonHash = await hashPassword("Quest1234!");
-  const enterpriseEmail = (process.env.DEMO_ENTERPRISE_EMAIL ?? "enterprise@quest.local").toLowerCase();
-  const enterprisePassword = process.env.DEMO_ENTERPRISE_PASSWORD ?? "QuestEnterprise123!";
-  const demoAdventurerEmail = (process.env.DEMO_ADVENTURER_EMAIL ?? "aventureiro.demo@quest.local").toLowerCase();
-  const demoAdventurerPassword = process.env.DEMO_ADVENTURER_PASSWORD ?? "QuestAventura123!";
+  const enterpriseEmail = (process.env.DEMO_ENTERPRISE_EMAIL ?? "demo-enterprise@example.com").toLowerCase();
+  const enterprisePassword = process.env.DEMO_ENTERPRISE_PASSWORD ?? "change-me-enterprise-password";
+  const demoAdventurerEmail = (process.env.DEMO_ADVENTURER_EMAIL ?? "demo-adventurer@example.com").toLowerCase();
+  const demoAdventurerPassword = process.env.DEMO_ADVENTURER_PASSWORD ?? "change-me-adventurer-password";
   const enterpriseHash = await hashPassword(enterprisePassword);
   const demoAdventurerHash = await hashPassword(demoAdventurerPassword);
   const rankE = await prisma.rank.findUniqueOrThrow({ where: { name: RankName.E } });
@@ -330,29 +329,6 @@ export async function resetDemoData() {
     },
   });
 
-  if (enterpriseEmail !== "patrono@quest.local") {
-    // Conta legada para compatibilidade com testes anteriores.
-    await prisma.user.create({
-      data: {
-        email: "patrono@quest.local",
-        passwordHash: commonHash,
-        role: Role.PATRON,
-        name: "Patrono Demo",
-        nick: "PatronoPiracicaba",
-        city: "Piracicaba",
-        state: "SP",
-        profile: {
-          create: {
-            skills: ["Gestao", "Operacoes"],
-            badges: ["Patrono Alpha"],
-            availability: Availability.FLEXIBLE,
-            rankId: rankE.id,
-          },
-        },
-      },
-    });
-  }
-
   const adventurer = await prisma.user.create({
     data: {
       email: demoAdventurerEmail,
@@ -372,29 +348,6 @@ export async function resetDemoData() {
       },
     },
   });
-
-  if (demoAdventurerEmail !== "aventureiro@quest.local") {
-    // Conta legada para compatibilidade com testes anteriores.
-    await prisma.user.create({
-      data: {
-        email: "aventureiro@quest.local",
-        passwordHash: commonHash,
-        role: Role.ADVENTURER,
-        name: "Aventureiro Demo",
-        nick: "AventureiroPiracicaba",
-        city: "Piracicaba",
-        state: "SP",
-        profile: {
-          create: {
-            skills: ["Operacoes & Planilhas", "Atendimento & Suporte"],
-            badges: ["Alpha Pioneer"],
-            availability: Availability.PART_TIME,
-            rankId: rankE.id,
-          },
-        },
-      },
-    });
-  }
 
   const missionsData: Array<{
     category: MissionCategory;

@@ -1,9 +1,9 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 
-const adventurerEmail = process.env.DEMO_ADVENTURER_EMAIL ?? "aventureiro.demo@quest.local";
-const adventurerPassword = process.env.DEMO_ADVENTURER_PASSWORD ?? "QuestAventura123!";
-const otherAdventurerEmail = process.env.LLM_SIM_EMAIL ?? "llm.simulador@quest.local";
-const otherAdventurerPassword = process.env.LLM_SIM_PASSWORD ?? "Quest1234!";
+const adventurerEmail = process.env.DEMO_ADVENTURER_EMAIL ?? "demo-adventurer@example.com";
+const adventurerPassword = process.env.DEMO_ADVENTURER_PASSWORD ?? "change-me-adventurer-password";
+const otherAdventurerEmail = process.env.LLM_SIM_EMAIL ?? "llm-simulator@example.com";
+const otherAdventurerPassword = process.env.LLM_SIM_PASSWORD ?? "change-me-llm-simulator-password";
 
 async function login(context: BrowserContext, email: string, password: string): Promise<Page> {
   const page = await context.newPage();
