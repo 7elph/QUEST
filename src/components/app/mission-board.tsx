@@ -31,6 +31,7 @@ type MissionBoardProps = {
 
 const desktopPageSize = 18;
 const mobilePageSize = 12;
+const boardSlotsClass = "absolute left-[18.2%] top-[25.6%] h-[52.4%] w-[63%]";
 
 const rankStyle: Record<MissionBoardItem["rank"], { chip: string; glow: string }> = {
   E: {
@@ -142,8 +143,9 @@ export function MissionBoard({ missions, viewerRole }: MissionBoardProps) {
             priority
             className="object-contain"
           />
-          <div className="absolute left-[17.6%] top-[25.2%] h-[53.8%] w-[64.6%]">
-            <div className="grid h-full grid-cols-6 grid-rows-2 gap-px">
+          <div className={boardSlotsClass}>
+            <div className="h-full w-full p-[0.55%]">
+              <div className="grid h-full grid-cols-6 grid-rows-2 gap-[2px]">
               {visible.map((mission) => {
                 const isActive = mission.id === activeId;
                 return (
@@ -166,6 +168,7 @@ export function MissionBoard({ missions, viewerRole }: MissionBoardProps) {
                   </button>
                 );
               })}
+              </div>
             </div>
           </div>
         </div>
@@ -220,8 +223,9 @@ export function MissionBoard({ missions, viewerRole }: MissionBoardProps) {
           className="object-contain"
         />
 
-        <div className="absolute left-[17.6%] top-[25.2%] h-[53.8%] w-[64.6%]">
-          <div className="grid h-full grid-cols-6 grid-rows-3 gap-px">
+        <div className={boardSlotsClass}>
+          <div className="h-full w-full p-[0.55%]">
+            <div className="grid h-full grid-cols-6 grid-rows-3 gap-[2px]">
             {visible.map((mission, index) => {
               const isActive = mission.id === activeId;
               const isPopupOpen = popupId === mission.id;
@@ -326,6 +330,7 @@ export function MissionBoard({ missions, viewerRole }: MissionBoardProps) {
                 </div>
               );
             })}
+            </div>
           </div>
         </div>
       </div>

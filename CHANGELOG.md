@@ -18,7 +18,9 @@ Formato baseado em "Keep a Changelog" e versionamento semantico adaptado ao plan
 - Testes E2E de seguranca para callback/login e RBAC entre aventureiros (`tests/e2e/rbac.spec.ts`).
 - Script dedicado de tunel `npm run tunnel` com reaproveitamento de sessao ngrok ativa e sync automatico do `NEXTAUTH_URL`.
 - Comando `npm run tunnel:status` para consultar tunel ativo sem abrir nova sessao ngrok.
-- Componente `ProfileCharacterViewer` para renderizar personagem 3D (`.glb`) no perfil com `model-viewer`.
+- Endpoint de perfil `/api/profile/avatar` para salvar avatar 2D escolhido pelo usuario.
+- Catalogo central de avatares 2D em `src/lib/profile-avatars.ts`.
+- Componente `ProfileAvatarPicker` com seletor de personagem + estado dinamico (idle/missao/alerta).
 
 ### Changed
 - `NEXTAUTH_URL` ajustado para dominio ngrok em ambiente externo.
@@ -50,7 +52,9 @@ Formato baseado em "Keep a Changelog" e versionamento semantico adaptado ao plan
 - `next.config.mjs` migrou o ajuste de log do Sentry para `webpack.treeshake.removeDebugLogging`.
 - Upload passou a aplicar limite total por usuario (`UPLOAD_USER_MAX_BYTES`) antes de aceitar novos arquivos.
 - `scripts/quest-all.mjs` agora reaproveita tunel ngrok local existente e evita abrir sessao duplicada (mitiga `ERR_NGROK_108` em uso diario).
-- Cabecalho do perfil agora exibe avatar 3D "vivo" com auto-rotacao e leve movimento, usando modelos da pasta `public/assets/personagens`.
+- Quadro de missoes recebeu ajuste fino de area util para manter os cards totalmente dentro da moldura de madeira.
+- Pagina de detalhes da missao voltou ao layout completo dentro do pergaminho (conteudo principal inteiro no papel, sem card pequeno centralizado).
+- Perfil migrou de avatar 3D para avatares 2D baseados em spritesheets (`public/assets/personagens/SpriteSheets(96x96)`), com escolha manual do usuario e reacao dinamica por atividade.
 
 ### Fixed
 - Logger de backend passou a usar implementacao sem worker thread para evitar falhas intermitentes em `next dev` no Windows (`vendor-chunks/lib/worker.js`).

@@ -7,9 +7,10 @@ import { getServerAuthSession } from "@/lib/auth";
 import { getRankByXP } from "@/lib/xp";
 import { computePerformanceScore } from "@/lib/ranking";
 import { AdventurerAssessment } from "@/components/app/adventurer-assessment";
+import { ProfileAvatarPicker } from "@/components/app/profile-avatar-picker";
 import { storeCatalog } from "@/lib/store";
 import { getMissionRewardPreview } from "@/lib/mission-rewards";
-import { ProfileCharacterViewer } from "@/components/app/profile-character-viewer";
+import { defaultProfileAvatarId, getProfileAvatarBySrc, profileAvatarOptions } from "@/lib/profile-avatars";
 
 const rankTargets = [
   { rank: "E", minXP: 0, nextRank: "D", nextMinXP: 100 },
@@ -50,15 +51,6 @@ const missionStatusLabel: Record<string, string> = {
   COMPLETED: "Concluida",
   DISPUTED: "Disputa",
   CANCELLED: "Cancelada",
-};
-
-const rankCharacterModel: Record<"E" | "D" | "C" | "B" | "A" | "S", string> = {
-  E: "/assets/personagens/Characters/gltf/Rogue.glb",
-  D: "/assets/personagens/Characters/gltf/Rogue_Hooded.glb",
-  C: "/assets/personagens/Characters/gltf/Ranger.glb",
-  B: "/assets/personagens/Characters/gltf/Mage.glb",
-  A: "/assets/personagens/Characters/gltf/Knight.glb",
-  S: "/assets/personagens/Characters/gltf/Barbarian.glb",
 };
 
 function getRankProgress(xp: number, rank: string) {
@@ -237,13 +229,10 @@ export default async function ProfilePage() {
     })
     .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
   const enchantiunBalance = xp;
-  const avatarSrc = user.profile?.avatarUrl?.startsWith("/")
-    ? user.profile.avatarUrl
-    : "/assets/icones/Equipment/Wizard Hat.png";
-  const configuredModel = user.profile?.avatarUrl?.toLowerCase().endsWith(".glb")
-    ? user.profile.avatarUrl
-    : null;
-  const characterModelSrc = configuredModel ?? rankCharacterModel[rank];
+  const avatar = getProfileAvatarBySrc(user.profile?.avatarUrl) ?? profileAvatarOptions.find((item) => item.id === defaultProfileAvatarId) ?? profileAvatarOptions[0];
+  const activeMissionCount = myMissions.filter((mission) =>
+    ["OPEN", "ASSIGNED", "IN_REVIEW", "REVISION_REQUESTED"].includes(mission.status),
+  ).length;
   const healthCap = rank === "S" ? 2500 : (rankTargets.find((item) => item.rank === rank)?.nextMinXP ?? 2000);
   const healthPct = Math.max(5, Math.min(100, Math.round((enchantiunBalance / healthCap) * 100)));
   const staminaPct = Math.max(10, Math.min(100, Math.round(perf.punctuality * 100)));
@@ -253,15 +242,14 @@ export default async function ProfilePage() {
       <section className="quest-panel quest-panel-solid rounded-2xl border border-amber-200/30 bg-[linear-gradient(120deg,rgba(24,17,14,0.88),rgba(15,12,13,0.9))] p-5 md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="quest-panel quest-panel-texture rounded-xl border border-amber-200/30 bg-black/35 p-3">
-              <div className="mx-auto h-[112px] w-[112px]">
-                <ProfileCharacterViewer
-                  modelSrc={characterModelSrc}
-                  posterSrc={avatarSrc}
-                  alt={`Personagem de perfil de ${name}`}
-                />
-              </div>
-              <p className="mt-2 text-center text-xs text-amber-100/80">Avatar vivo</p>
+            <div className="quest-panel quest-panel-texture w-[220px] rounded-xl border border-amber-200/30 bg-black/35 p-3">
+              <ProfileAvatarPicker
+                options={profileAvatarOptions}
+                initialAvatarId={avatar.id}
+                unreadNotifications={user.notifications.length}
+                activeMissionCount={activeMissionCount}
+                disputeCount={disputes}
+              />
             </div>
             <div>
               <p className="text-xs tracking-[0.18em] text-amber-200/80">PERFIL DO AVENTUREIRO</p>
