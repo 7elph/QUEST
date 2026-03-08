@@ -77,30 +77,36 @@ export default async function MissionDetailPage({ params }: { params: { id: stri
     : canSeeOwnEvidence
       ? mission.submissions.filter((submission) => submission.adventurerId === session?.user?.id)
       : [];
+  const surfaceClass =
+    "relative overflow-hidden rounded-xl border border-[#6a4029]/35";
+  const surfaceBackgroundClass =
+    "absolute inset-0 bg-[url('/assets/fundo_missao.png')] bg-no-repeat bg-center [background-size:100%_100%]";
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-amber-200/20 bg-black/20 p-5">
-        <p className="text-xs text-amber-300/80">
+      <section className={surfaceClass}>
+        <div className={surfaceBackgroundClass} />
+        <div className="relative p-5 text-[#1b130f]">
+        <p className="text-xs font-semibold text-[#5a3829]/85">
           {getCategoryDisplay(mission.category)} • {mission.status} • min rank {mission.minRank}
         </p>
-        <h1 className="mt-1 text-3xl font-bold text-amber-200">
+        <h1 className="mt-1 text-3xl font-bold text-[#1b130f]">
           {isAdventurer ? mission.rpgTitle ?? mission.title : mission.title}
         </h1>
-        <p className="mt-2 text-sm text-amber-100/80">Patrono: {mission.patron.nick ?? mission.patron.email}</p>
-        <p className="text-sm text-amber-100/80">Atribuida para: {mission.assignedUser?.nick ?? mission.assignedUser?.email ?? "-"}</p>
-        <p className="text-sm text-amber-100/80">
+        <p className="mt-2 text-sm text-[#2a1a13]">Patrono: {mission.patron.nick ?? mission.patron.email}</p>
+        <p className="text-sm text-[#2a1a13]">Atribuida para: {mission.assignedUser?.nick ?? mission.assignedUser?.email ?? "-"}</p>
+        <p className="text-sm text-[#2a1a13]">
           Local: {mission.city}/{mission.state} - {mission.neighborhood}
         </p>
-        <p className="text-sm text-amber-100/80">Tipo: {mission.missionType}</p>
-        <p className="text-sm text-amber-100/80">Formato desejado: {mission.desiredFormat ?? "-"}</p>
-        <p className="text-sm text-amber-100/80">Max revisoes: {mission.maxRevisions}</p>
-        <p className="inline-flex items-center gap-1.5 text-sm text-amber-100/90">
+        <p className="text-sm text-[#2a1a13]">Tipo: {mission.missionType}</p>
+        <p className="text-sm text-[#2a1a13]">Formato desejado: {mission.desiredFormat ?? "-"}</p>
+        <p className="text-sm text-[#2a1a13]">Max revisoes: {mission.maxRevisions}</p>
+        <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2a1a13]">
           <Image src="/assets/Crystal.png" alt="" aria-hidden width={15} height={15} className="h-[15px] w-[15px] object-contain" />
           Pagamento previsto: +{rewardPreview.enchantiun} Enchantiun
         </p>
         {rewardPreview.drop && (
-          <p className="inline-flex items-center gap-1.5 text-sm text-amber-100/90">
+          <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2a1a13]">
             <Image src={rewardPreview.drop.iconPath} alt="" aria-hidden width={15} height={15} className="h-[15px] w-[15px] object-contain" />
             Drop possivel: {rewardPreview.drop.name}
           </p>
@@ -110,46 +116,66 @@ export default async function MissionDetailPage({ params }: { params: { id: stri
         </div>
         {isAdventurer ? (
           <>
-            <p className="mt-3 text-amber-100/90">{mission.rpgNarrative ?? mission.narrative}</p>
-            {mission.rpgRewardFlavor && <p className="mt-2 text-sm text-amber-200/90">{mission.rpgRewardFlavor}</p>}
+            <p className="mt-3 text-[#2a1a13]">{mission.rpgNarrative ?? mission.narrative}</p>
+            {mission.rpgRewardFlavor && <p className="mt-2 text-sm font-semibold text-[#5a3829]">{mission.rpgRewardFlavor}</p>}
           </>
         ) : (
-          <p className="mt-3 text-amber-100/90">{mission.scope}</p>
+          <p className="mt-3 text-[#2a1a13]">{mission.scope}</p>
         )}
-        <h2 className="mt-4 font-semibold">Condicoes de Vitoria</h2>
-        <ul className="ml-5 list-disc space-y-1 text-sm">
+        <h2 className="mt-4 font-semibold text-[#1b130f]">Condicoes de Vitoria</h2>
+        <ul className="ml-5 list-disc space-y-1 text-sm text-[#2a1a13]">
           {mission.victoryConditions.map((item, idx) => <li key={idx}>{item}</li>)}
         </ul>
+        </div>
       </section>
 
-      {session?.user && <MissionActions missionId={mission.id} canAccept={canAccept} canSubmit={canSubmit} canReview={canReview} />}
-
-      <EscrowTimeline status={mission.escrowStatus} />
-
-      {mission.assignedTo && (
-        <MissionChecklistProgress
-          missionId={mission.id}
-          conditions={mission.victoryConditions}
-          canEdit={canEditChecklist}
-          initialState={checklistState}
-          completionPct={checklistPct}
-          updatedAt={checklistProgress?.updatedAt.toISOString()}
-        />
+      {session?.user && (
+        <section className={surfaceClass}>
+          <div className={surfaceBackgroundClass} />
+          <div className="relative p-4">
+            <MissionActions missionId={mission.id} canAccept={canAccept} canSubmit={canSubmit} canReview={canReview} />
+          </div>
+        </section>
       )}
 
-      <section className="rounded-xl border border-amber-200/20 bg-black/20 p-5">
+      <section className={surfaceClass}>
+        <div className={surfaceBackgroundClass} />
+        <div className="relative p-4">
+          <EscrowTimeline status={mission.escrowStatus} />
+        </div>
+      </section>
+
+      {mission.assignedTo && (
+        <section className={surfaceClass}>
+          <div className={surfaceBackgroundClass} />
+          <div className="relative p-4">
+            <MissionChecklistProgress
+              missionId={mission.id}
+              conditions={mission.victoryConditions}
+              canEdit={canEditChecklist}
+              initialState={checklistState}
+              completionPct={checklistPct}
+              updatedAt={checklistProgress?.updatedAt.toISOString()}
+            />
+          </div>
+        </section>
+      )}
+
+      <section className={surfaceClass}>
+        <div className={surfaceBackgroundClass} />
+        <div className="relative p-5 text-[#1b130f]">
         <h2 className="text-xl font-semibold">Provas enviadas</h2>
         <div className="mt-3 space-y-3">
           {visibleSubmissions.map((submission) => (
-            <div key={submission.id} className="rounded-md border border-amber-100/15 p-3 text-sm">
+            <div key={submission.id} className="border-b border-[#5a3829]/20 pb-3 text-sm last:border-b-0">
               <p>Status: {submission.status} • Revisoes: {submission.revisionCount}</p>
               <p>Por: {submission.adventurer.nick ?? submission.adventurer.email}</p>
               <p>Notas atuais: {submission.notes ?? "-"}</p>
               {submission.proofLinks.length > 0 && (
-                <a href={submission.proofLinks[0]} target="_blank" className="text-amber-300" rel="noreferrer">Abrir prova</a>
+                <a href={submission.proofLinks[0]} target="_blank" className="font-semibold text-[#5a3829] underline" rel="noreferrer">Abrir prova</a>
               )}
-              <div className="mt-2 rounded-md border border-amber-100/10 bg-black/20 p-2">
-                <p className="text-xs font-semibold text-amber-200">Historico de revisoes</p>
+              <div className="mt-2 border-l-2 border-[#5a3829]/30 pl-2">
+                <p className="text-xs font-semibold text-[#5a3829]">Historico de revisoes</p>
                 <div className="mt-1 space-y-1 text-xs">
                   {submission.revisions.map((revision) => (
                     <p key={revision.id}>v{revision.version} • {new Date(revision.createdAt).toLocaleString("pt-BR")} • {revision.notes ?? "sem notas"}</p>
@@ -160,13 +186,14 @@ export default async function MissionDetailPage({ params }: { params: { id: stri
             </div>
           ))}
           {visibleSubmissions.length === 0 && (canSeeAllEvidence || canSeeOwnEvidence) && (
-            <p className="text-sm text-amber-100/75">Sem provas enviadas.</p>
+            <p className="text-sm text-[#3d271c]/80">Sem provas enviadas.</p>
           )}
           {!canSeeAllEvidence && !canSeeOwnEvidence && (
-            <p className="text-sm text-amber-100/75">
+            <p className="text-sm text-[#3d271c]/80">
               As provas ficam visiveis apos atribuicao da missao ou para o patrono responsavel.
             </p>
           )}
+        </div>
         </div>
       </section>
     </div>

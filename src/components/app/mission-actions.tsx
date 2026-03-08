@@ -60,40 +60,101 @@ export function MissionActions({ missionId, canAccept, canSubmit, canReview }: {
   };
 
   return (
-    <div className="space-y-4">
-      {canAccept && <Button disabled={loading} onClick={() => call(`/api/missions/${missionId}/accept`, undefined, "/profile#missoes")}>Aceitar Missao</Button>}
+    <div className="space-y-4 text-[#1b130f]">
+      {canAccept && (
+        <Button
+          disabled={loading}
+          onClick={() => call(`/api/missions/${missionId}/accept`, undefined, "/profile#missoes")}
+          className="border border-[#5a3829]/35 bg-[#d6a354] text-[#1b130f] hover:bg-[#c89445]"
+        >
+          Aceitar Missao
+        </Button>
+      )}
 
       {canSubmit && (
-        <div className="space-y-2 rounded-md border border-amber-100/20 p-3">
-          <h3 className="text-sm font-semibold">Enviar prova</h3>
-          <Input placeholder="Link da prova" value={proofLink} onChange={(e) => setProofLink(e.target.value)} />
-          <label className="block text-xs text-amber-100/80">Upload de arquivo (PNG/JPG/PDF/TXT ate 5MB)</label>
-          <input type="file" onChange={(e) => void handleUpload(e.target.files?.[0] ?? null)} className="w-full text-sm" />
-          {proofFileUrl && <p className="text-xs text-amber-300">Arquivo: {proofFileUrl}</p>}
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="h-20 w-full rounded-md border border-amber-100/20 bg-slate-900/80 p-2 text-sm" placeholder="Notas" />
-          <Button disabled={loading} onClick={() => call(`/api/missions/${missionId}/submit`, { proofLinks: proofLink ? [proofLink] : [], proofFiles: proofFileUrl ? [proofFileUrl] : [], notes })}>Enviar</Button>
+        <div className="space-y-2 border-t border-[#5a3829]/25 pt-3">
+          <h3 className="text-sm font-semibold text-[#1b130f]">Enviar prova</h3>
+          <Input
+            placeholder="Link da prova"
+            value={proofLink}
+            onChange={(e) => setProofLink(e.target.value)}
+            className="border-[#5a3829]/35 bg-[#f5e3bf]/75 text-[#1b130f] placeholder:text-[#6d4b3c]/70"
+          />
+          <label className="block text-xs text-[#3d271c]/80">Upload de arquivo (PNG/JPG/PDF/TXT ate 5MB)</label>
+          <input type="file" onChange={(e) => void handleUpload(e.target.files?.[0] ?? null)} className="w-full text-sm text-[#2a1a13]" />
+          {proofFileUrl && <p className="text-xs text-[#5a3829]">Arquivo: {proofFileUrl}</p>}
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="h-20 w-full rounded-md border border-[#5a3829]/35 bg-[#f5e3bf]/75 p-2 text-sm text-[#1b130f] placeholder:text-[#6d4b3c]/70"
+            placeholder="Notas"
+          />
+          <Button
+            disabled={loading}
+            onClick={() => call(`/api/missions/${missionId}/submit`, { proofLinks: proofLink ? [proofLink] : [], proofFiles: proofFileUrl ? [proofFileUrl] : [], notes })}
+            className="border border-[#5a3829]/35 bg-[#d6a354] text-[#1b130f] hover:bg-[#c89445]"
+          >
+            Enviar
+          </Button>
         </div>
       )}
 
       {canReview && (
-        <div className="space-y-2 rounded-md border border-amber-100/20 p-3">
-          <h3 className="text-sm font-semibold">Revisar entrega</h3>
-          <Input placeholder="Comentario" value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} />
+        <div className="space-y-2 border-t border-[#5a3829]/25 pt-3">
+          <h3 className="text-sm font-semibold text-[#1b130f]">Revisar entrega</h3>
+          <Input
+            placeholder="Comentario"
+            value={reviewComment}
+            onChange={(e) => setReviewComment(e.target.value)}
+            className="border-[#5a3829]/35 bg-[#f5e3bf]/75 text-[#1b130f] placeholder:text-[#6d4b3c]/70"
+          />
           <div className="flex flex-wrap gap-2">
-            <Button disabled={loading} onClick={() => call(`/api/missions/${missionId}/review`, { decision: ReviewDecision.ACCEPT, comment: reviewComment })}>Aprovar</Button>
-            <Button disabled={loading} variant="ghost" onClick={() => call(`/api/missions/${missionId}/review`, { decision: ReviewDecision.REVISION, comment: reviewComment })}>Pedir revisao</Button>
-            <Button disabled={loading} variant="danger" onClick={() => call(`/api/missions/${missionId}/review`, { decision: ReviewDecision.REJECT, comment: reviewComment })}>Rejeitar</Button>
+            <Button
+              disabled={loading}
+              onClick={() => call(`/api/missions/${missionId}/review`, { decision: ReviewDecision.ACCEPT, comment: reviewComment })}
+              className="border border-[#5a3829]/35 bg-[#d6a354] text-[#1b130f] hover:bg-[#c89445]"
+            >
+              Aprovar
+            </Button>
+            <Button
+              disabled={loading}
+              variant="ghost"
+              className="border border-[#5a3829]/35 text-[#1b130f] hover:bg-[#f5e3bf]/55"
+              onClick={() => call(`/api/missions/${missionId}/review`, { decision: ReviewDecision.REVISION, comment: reviewComment })}
+            >
+              Pedir revisao
+            </Button>
+            <Button
+              disabled={loading}
+              variant="danger"
+              className="border border-[#5a3829]/35 bg-[#9a3d2f] text-amber-50 hover:bg-[#853527]"
+              onClick={() => call(`/api/missions/${missionId}/review`, { decision: ReviewDecision.REJECT, comment: reviewComment })}
+            >
+              Rejeitar
+            </Button>
           </div>
         </div>
       )}
 
-      <div className="space-y-2 rounded-md border border-amber-100/20 p-3">
-        <h3 className="text-sm font-semibold">Abrir disputa</h3>
-        <Input placeholder="Motivo" value={disputeReason} onChange={(e) => setDisputeReason(e.target.value)} />
-        <Button disabled={loading} variant="ghost" onClick={() => call(`/api/missions/${missionId}/dispute`, { reason: disputeReason })}>Abrir Disputa</Button>
+      <div className="space-y-2 border-t border-[#5a3829]/25 pt-3">
+        <h3 className="text-sm font-semibold text-[#1b130f]">Abrir disputa</h3>
+        <Input
+          placeholder="Motivo"
+          value={disputeReason}
+          onChange={(e) => setDisputeReason(e.target.value)}
+          className="border-[#5a3829]/35 bg-[#f5e3bf]/75 text-[#1b130f] placeholder:text-[#6d4b3c]/70"
+        />
+        <Button
+          disabled={loading}
+          variant="ghost"
+          className="border border-[#5a3829]/35 text-[#1b130f] hover:bg-[#f5e3bf]/55"
+          onClick={() => call(`/api/missions/${missionId}/dispute`, { reason: disputeReason })}
+        >
+          Abrir Disputa
+        </Button>
       </div>
 
-      {message && <p className="text-sm text-amber-100">{message}</p>}
+      {message && <p className="text-sm text-[#3d271c]">{message}</p>}
     </div>
   );
 }
