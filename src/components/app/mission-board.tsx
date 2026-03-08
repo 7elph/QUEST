@@ -172,7 +172,7 @@ export function MissionBoard({ missions, viewerRole }: MissionBoardProps) {
         />
 
         <div className="absolute left-[17.6%] top-[25.2%] h-[53.8%] w-[64.6%]">
-          <div className="grid h-full grid-cols-6 gap-px">
+          <div className="grid h-full grid-cols-6 grid-rows-3 gap-px">
             {visible.map((mission, index) => {
               const isActive = mission.id === activeId;
               const isPopupOpen = popupId === mission.id;
