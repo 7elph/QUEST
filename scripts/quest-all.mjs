@@ -297,6 +297,21 @@ function extractNgrokPublicUrl(payload) {
   return firstTunnel?.public_url ?? null;
 }
 
+async function fetchExistingNgrokTunnel() {
+  try {
+    const response = await fetch("http://127.0.0.1:4040/api/tunnels", { cache: "no-store" });
+    if (!response.ok) return null;
+    const payload = await response.json();
+    if (!payload || !Array.isArray(payload.tunnels) || payload.tunnels.length === 0) return null;
+    const publicUrl = extractNgrokPublicUrl(payload);
+    if (!publicUrl) return null;
+    const tunnel = payload.tunnels.find((item) => item?.public_url === publicUrl) ?? payload.tunnels[0];
+    return { publicUrl, tunnel };
+  } catch {
+    return null;
+  }
+}
+
 async function waitForNgrokPublicUrl(maxAttempts = 20, delayMs = 500) {
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
@@ -320,6 +335,17 @@ async function setupNgrokWithUrl(env) {
   const enabled = args.has("--ngrok") || boolFromEnv(env.NGROK_ENABLED, false);
   if (!enabled) return null;
 
+  const desiredPort = String(env.NGROK_PORT || "3000");
+  const existing = await fetchExistingNgrokTunnel();
+  const existingAddr = existing?.tunnel?.config?.addr;
+  if (existing?.publicUrl && (!existingAddr || String(existingAddr).includes(desiredPort))) {
+    process.env.NEXTAUTH_URL = existing.publicUrl;
+    upsertEnvValue(".env", "NEXTAUTH_URL", existing.publicUrl);
+    console.log(`[ngrok] Reutilizando tunel existente: ${existing.publicUrl}`);
+    console.log("[ngrok] NEXTAUTH_URL sincronizado em .env");
+    return { proc: null, publicUrl: existing.publicUrl, reused: true };
+  }
+
   const ngrok = resolveNgrokBinary();
   if (!ngrok) {
     console.log("NGROK_ENABLED=true, mas ngrok nao foi encontrado. Pulando tunel.");
@@ -332,7 +358,7 @@ async function setupNgrokWithUrl(env) {
 
   runBin(ngrok, ["update"], { required: false, stdio: "ignore" });
 
-  const ngrokArgs = ["http", env.NGROK_PORT || "3000"];
+  const ngrokArgs = ["http", desiredPort];
   if (env.NGROK_REGION) {
     ngrokArgs.push("--region", env.NGROK_REGION);
   }
@@ -352,6 +378,11 @@ async function setupNgrokWithUrl(env) {
     console.log(`[ngrok] Acesse no celular: ${publicUrl}/home`);
     console.log("[ngrok] O link espelha todas as paginas do app.");
   } else {
+    if (proc.exitCode !== null) {
+      console.error("ngrok encerrou sem abrir tunel. Verifique erro acima (ex.: ERR_NGROK_108 por sessao duplicada).");
+      console.error("Feche sessoes ativas no dashboard: https://dashboard.ngrok.com/agents");
+      return { proc: null, publicUrl: null, error: "NGROK_START_FAILED" };
+    }
     console.log("ngrok iniciado. Abra http://127.0.0.1:4040 para copiar a URL publica.");
   }
 
@@ -417,6 +448,9 @@ if (!skipQuality) {
 let ngrokProc = null;
 if (!noDev) {
   const ngrokSession = await setupNgrokWithUrl(env);
+  if (ngrokSession?.error) {
+    process.exit(1);
+  }
   ngrokProc = ngrokSession?.proc ?? null;
   const devStatus = run("npm run dev", { required: false });
   if (ngrokProc && !ngrokProc.killed) {

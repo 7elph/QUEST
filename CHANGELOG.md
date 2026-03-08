@@ -36,6 +36,7 @@ Formato baseado em "Keep a Changelog" e versionamento semantico adaptado ao plan
 - `next.config.mjs` ganhou `allowedDevOrigins` via env (`ALLOWED_DEV_ORIGINS`) para reduzir bloqueios de origem no dev com ngrok.
 - `next.config.mjs` migrou o ajuste de log do Sentry para `webpack.treeshake.removeDebugLogging`.
 - Upload passou a aplicar limite total por usuario (`UPLOAD_USER_MAX_BYTES`) antes de aceitar novos arquivos.
+- `scripts/quest-all.mjs` agora reaproveita tunel ngrok local existente e evita abrir sessao duplicada (mitiga `ERR_NGROK_108` em uso diario).
 
 ### Fixed
 - Logger de backend passou a usar implementacao sem worker thread para evitar falhas intermitentes em `next dev` no Windows (`vendor-chunks/lib/worker.js`).
