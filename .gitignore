@@ -8,6 +8,7 @@
 
 # testing
 /coverage
+/test-results
 
 # next.js
 /.next/
@@ -19,6 +20,12 @@
 # misc
 .DS_Store
 *.pem
+/public/uploads
+cd
+docker
+node
+npm
+quest-app@0.1.0
 
 # debug
 npm-debug.log*
