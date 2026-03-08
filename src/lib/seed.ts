@@ -139,6 +139,34 @@ function pickDesiredFormat(index: number) {
   return values[index % values.length];
 }
 
+function resolveMinRank(index: number, totalMissions: number) {
+  const lowCutoff = Math.max(1, Math.ceil(totalMissions * 0.4));
+  const midCutoff = Math.max(lowCutoff + 1, Math.ceil(totalMissions * 0.8));
+
+  if (index < lowCutoff) return RankName.E;
+  if (index < midCutoff) return RankName.D;
+  return RankName.C;
+}
+
+function buildAssignedIndexes(totalMissions: number, targetAssigned: number) {
+  const indexes = new Set<number>();
+  if (totalMissions <= 0 || targetAssigned <= 0) {
+    return indexes;
+  }
+
+  if (targetAssigned === 1) {
+    indexes.add(0);
+    return indexes;
+  }
+
+  for (let i = 0; i < targetAssigned; i += 1) {
+    const position = Math.floor((i * (totalMissions - 1)) / (targetAssigned - 1));
+    indexes.add(position);
+  }
+
+  return indexes;
+}
+
 async function seedSystemTemplates() {
   for (const [category, presets] of Object.entries(missionTypeCatalog) as Array<[MissionCategory, MissionTypePreset[]]>) {
     const preset = presets[0];
@@ -361,16 +389,17 @@ export async function resetDemoData() {
     neighborhood: (typeof PIRACICABA_NEIGHBORHOODS)[number];
   }> = [];
 
+  const missionsPerCategory = 2;
   let missionCounter = 0;
   for (const [category, titles] of Object.entries(titlesByCategory) as [MissionCategory, string[]][]) {
     const presets = missionTypeCatalog[category];
-    for (let idx = 0; idx < 4; idx += 1) {
+    for (let idx = 0; idx < missionsPerCategory; idx += 1) {
       const preset = presets[idx % presets.length];
       const context = localContexts[(missionCounter + idx) % localContexts.length];
       const neighborhood = neighborhoodPlan[missionCounter];
       missionsData.push({
         category,
-        title: titles[idx],
+        title: titles[idx % titles.length],
         missionType: preset.label,
         scope: `${preset.scopeTemplate} Contexto: ${context} de Piracicaba (${neighborhood}).`,
         victoryConditions: preset.checklist.slice(0, Math.min(7, Math.max(3, preset.checklist.length))),
@@ -383,7 +412,7 @@ export async function resetDemoData() {
     }
   }
 
-  const assignedIndexes = new Set([4, 9, 14, 19, 24]);
+  const assignedIndexes = buildAssignedIndexes(missionsData.length, Math.min(5, missionsData.length));
   const missions = [];
 
   for (let i = 0; i < missionsData.length; i += 1) {
@@ -420,7 +449,7 @@ export async function resetDemoData() {
         rewardType,
         sponsored,
         escrowStatus: sponsored ? EscrowStatus.PENDING : EscrowStatus.NONE,
-        minRank: i < 8 ? RankName.E : i < 16 ? RankName.D : RankName.C,
+        minRank: resolveMinRank(i, missionsData.length),
         status,
         assignedTo: status === MissionStatus.ASSIGNED ? adventurer.id : null,
         assignedAt: status === MissionStatus.ASSIGNED ? new Date() : null,
@@ -477,14 +506,16 @@ export async function resetDemoData() {
     }
   }
 
-  await prisma.missionProgress.create({
-    data: {
-      missionId: assignedMissions[0].id,
-      adventurerId: adventurer.id,
-      checklistState: [true, true, false],
-      completionPct: 67,
-    },
-  });
+  if (assignedMissions[0]) {
+    await prisma.missionProgress.create({
+      data: {
+        missionId: assignedMissions[0].id,
+        adventurerId: adventurer.id,
+        checklistState: [true, true, false],
+        completionPct: 67,
+      },
+    });
+  }
 
   await prisma.adventurerAssessment.create({
     data: {
@@ -539,7 +570,7 @@ export async function resetDemoData() {
     data: [
       {
         title: "Drop Piracicaba Alpha",
-        content: "28 missoes digitais ativas com foco local por bairro.",
+        content: `${missions.length} missoes digitais ativas com foco local por bairro.`,
       },
       {
         title: "Ranking semanal",
@@ -554,7 +585,7 @@ export async function resetDemoData() {
         userId: enterprisePatron.id,
         type: "MISSION",
         title: "Demo local pronto",
-        message: "Seu painel agora inclui 28 missoes digitais em Piracicaba/SP.",
+        message: `Seu painel agora inclui ${missions.length} missoes digitais em Piracicaba/SP.`,
       },
       {
         userId: adventurer.id,

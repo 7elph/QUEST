@@ -28,6 +28,7 @@ Formato baseado em "Keep a Changelog" e versionamento semantico adaptado ao plan
 - Scripts de tunel (`quest:all -- --ngrok` e `npm run tunnel`) agora sincronizam `NEXTAUTH_URL` em `.env` e `.env.example`.
 - `README.md` foi sanitizado para usar apenas placeholders de credenciais/segredos e orientar configuracao via `.env`.
 - `.env.example` passou a usar placeholders para contas admin/demo/LLM e `AUTH_SECRET`.
+- Seed de demo foi reduzido para metade das missoes (14, com 2 por categoria) e mensagens operacionais agora usam contagem dinamica.
 - Removido `trustHost` de `authOptions` por incompatibilidade de tipagem/comportamento com `next-auth` v4 (`AuthOptions`).
 - Fluxos de LLM (screening de missao, triagem de disputa, simulacao e narrativa RPG) passam a respeitar runtime config central, nao apenas variaveis fixas de `.env`.
 - Aba `Pipeline LLM` no admin passou a permitir controle completo em runtime (enable/disable, base URL, modelos por etapa, timeouts, retry, warmup e teste).
@@ -50,6 +51,7 @@ Formato baseado em "Keep a Changelog" e versionamento semantico adaptado ao plan
 - Submissao de missao agora valida `proofFiles` contra uploads realmente pertencentes ao usuario autenticado.
 - Rotina de configuracao LLM deixou de depender de arquivo local por instancia, evitando desvio de comportamento entre processos.
 - Seed de demo removeu contas legadas com senha compartilhada e deixou de depender de defaults previsiveis para credenciais demo.
+- Seed de demo deixou de depender de indices fixos para missoes atribuidas e evita quebra quando a quantidade de missoes muda.
 
 ---
 

@@ -262,4 +262,4 @@ npm run assets:generate
 
 - Upload atual e local (`public/uploads`), pronto para trocar por S3.
 - Cofre e founders operam em modo manual no Alpha (confirmacao admin).
-- O seed cria admin, patrono, aventureiro, 28 missoes digitais de Piracicaba/SP (4 por categoria), 5 submissoes e dados de ranking.
+- O seed cria admin, patrono, aventureiro, 14 missoes digitais de Piracicaba/SP (2 por categoria), 5 submissoes e dados de ranking.
