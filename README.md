@@ -206,7 +206,7 @@ O `quest:all` agora faz:
 - Se abriu `https://SEU-LINK.ngrok-free.app`, voce pode navegar em todas as rotas (`/home`, `/profile`, `/ranking`, `/enterprise`, `/admin`).
 - Use sempre o link completo no celular e entre normalmente com login/senha.
 - Para manter ngrok separado do app, deixe `NGROK_ENABLED=false` e use `npm run tunnel`.
-- `npm run tunnel` reaproveita tunel ativo (evita sessao duplicada), e sincroniza `NEXTAUTH_URL` no `.env`.
+- `npm run tunnel` reaproveita tunel ativo (evita sessao duplicada), e sincroniza `NEXTAUTH_URL` no `.env` e `.env.example`.
 - `npm run tunnel:status` mostra se ja existe tunel ativo sem abrir novo processo.
 - Alternativa integrada: `npm run quest:all -- --ngrok` para subir ngrok dentro do pipeline.
 - Se houver erro `ERR_NGROK_108`, encerre agentes antigos e mantenha so um tunel ativo na conta free.

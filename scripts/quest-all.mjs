@@ -119,6 +119,14 @@ function upsertEnvValue(filePath, key, value) {
   fs.writeFileSync(filePath, `${nextLines.join("\n").replace(/\n+$/, "\n")}`, "utf8");
 }
 
+function syncNextAuthUrl(publicUrl) {
+  process.env.NEXTAUTH_URL = publicUrl;
+  upsertEnvValue(".env", "NEXTAUTH_URL", publicUrl);
+  if (fs.existsSync(".env.example")) {
+    upsertEnvValue(".env.example", "NEXTAUTH_URL", publicUrl);
+  }
+}
+
 function validateMigrations() {
   const migrationsDir = path.join("prisma", "migrations");
   if (!fs.existsSync(migrationsDir)) return;
@@ -339,10 +347,9 @@ async function setupNgrokWithUrl(env) {
   const existing = await fetchExistingNgrokTunnel();
   const existingAddr = existing?.tunnel?.config?.addr;
   if (existing?.publicUrl && (!existingAddr || String(existingAddr).includes(desiredPort))) {
-    process.env.NEXTAUTH_URL = existing.publicUrl;
-    upsertEnvValue(".env", "NEXTAUTH_URL", existing.publicUrl);
+    syncNextAuthUrl(existing.publicUrl);
     console.log(`[ngrok] Reutilizando tunel existente: ${existing.publicUrl}`);
-    console.log("[ngrok] NEXTAUTH_URL sincronizado em .env");
+    console.log("[ngrok] NEXTAUTH_URL sincronizado em .env e .env.example");
     return { proc: null, publicUrl: existing.publicUrl, reused: true };
   }
 
@@ -371,10 +378,9 @@ async function setupNgrokWithUrl(env) {
   const publicUrl = await waitForNgrokPublicUrl();
 
   if (publicUrl) {
-    process.env.NEXTAUTH_URL = publicUrl;
-    upsertEnvValue(".env", "NEXTAUTH_URL", publicUrl);
+    syncNextAuthUrl(publicUrl);
     console.log(`[ngrok] URL publica: ${publicUrl}`);
-    console.log("[ngrok] NEXTAUTH_URL sincronizado em .env");
+    console.log("[ngrok] NEXTAUTH_URL sincronizado em .env e .env.example");
     console.log(`[ngrok] Acesse no celular: ${publicUrl}/home`);
     console.log("[ngrok] O link espelha todas as paginas do app.");
   } else {

@@ -166,6 +166,9 @@ async function waitForNgrokPublicUrl(maxAttempts = 40, delayMs = 500) {
 function syncNextAuthUrl(publicUrl) {
   process.env.NEXTAUTH_URL = publicUrl;
   upsertEnvValue(".env", "NEXTAUTH_URL", publicUrl);
+  if (fs.existsSync(".env.example")) {
+    upsertEnvValue(".env.example", "NEXTAUTH_URL", publicUrl);
+  }
 }
 
 async function main() {
@@ -184,7 +187,7 @@ async function main() {
     }
     syncNextAuthUrl(existing.publicUrl);
     console.log(`[ngrok] Reutilizando tunel existente: ${existing.publicUrl}`);
-    console.log("[ngrok] NEXTAUTH_URL sincronizado em .env");
+    console.log("[ngrok] NEXTAUTH_URL sincronizado em .env e .env.example");
     return;
   }
 
@@ -226,7 +229,7 @@ async function main() {
   if (publicUrl) {
     syncNextAuthUrl(publicUrl);
     console.log(`[ngrok] URL publica: ${publicUrl}`);
-    console.log("[ngrok] NEXTAUTH_URL sincronizado em .env");
+    console.log("[ngrok] NEXTAUTH_URL sincronizado em .env e .env.example");
     console.log(`[ngrok] Acesse no celular: ${publicUrl}/home`);
   } else if (proc.exitCode !== null) {
     console.error("ngrok encerrou sem abrir tunel. Verifique o erro acima (ex.: ERR_NGROK_108).");
