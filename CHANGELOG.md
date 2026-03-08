@@ -32,6 +32,7 @@ Formato baseado em "Keep a Changelog" e versionamento semantico adaptado ao plan
 - Quadro de missoes no `/home` agora fixa grade desktop em `6x3` para evitar esticamento de cards quando ha poucas missoes visiveis.
 - No mobile, o quadro de missoes passou a usar imagem de fundo da guilda com grade fixa de `6x2` e pagina de 12 slots sem esticar os cards.
 - Pagina de detalhes da missao (`/mission/[id]`) agora usa `fundo_missao.png` como base visual dos blocos, removendo o aspecto de cards escuros/molduras separadas para alinhar ao hover do quadro.
+- Pagina de detalhes da missao foi consolidada em uma unica superficie continua (sem multiplos cards externos), com separacao interna por linhas para manter leitura.
 - Removido `trustHost` de `authOptions` por incompatibilidade de tipagem/comportamento com `next-auth` v4 (`AuthOptions`).
 - Fluxos de LLM (screening de missao, triagem de disputa, simulacao e narrativa RPG) passam a respeitar runtime config central, nao apenas variaveis fixas de `.env`.
 - Aba `Pipeline LLM` no admin passou a permitir controle completo em runtime (enable/disable, base URL, modelos por etapa, timeouts, retry, warmup e teste).
