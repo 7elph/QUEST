@@ -29,7 +29,8 @@ type MissionBoardProps = {
   viewerRole: "ADVENTURER" | "PATRON" | "ADMIN" | null;
 };
 
-const pageSize = 18;
+const desktopPageSize = 18;
+const mobilePageSize = 12;
 
 const rankStyle: Record<MissionBoardItem["rank"], { chip: string; glow: string }> = {
   E: {
@@ -60,17 +61,32 @@ const rankStyle: Record<MissionBoardItem["rank"], { chip: string; glow: string }
 
 export function MissionBoard({ missions, viewerRole }: MissionBoardProps) {
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
   const [page, setPage] = useState(0);
   const [activeId, setActiveId] = useState<string | null>(missions[0]?.id ?? null);
   const [popupId, setPopupId] = useState<string | null>(null);
   const [loadingAccept, setLoadingAccept] = useState<string | null>(null);
   const [feedback, setFeedback] = useState("");
 
+  const pageSize = isMobile ? mobilePageSize : desktopPageSize;
   const pageCount = Math.max(1, Math.ceil(missions.length / pageSize));
   const visible = useMemo(
     () => missions.slice(page * pageSize, page * pageSize + pageSize),
-    [missions, page],
+    [missions, page, pageSize],
   );
+  const activeMission = useMemo(
+    () => visible.find((mission) => mission.id === activeId) ?? visible[0] ?? null,
+    [activeId, visible],
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const syncMobileState = () => setIsMobile(mediaQuery.matches);
+    syncMobileState();
+    mediaQuery.addEventListener("change", syncMobileState);
+    return () => mediaQuery.removeEventListener("change", syncMobileState);
+  }, []);
 
   useEffect(() => {
     if (page > pageCount - 1) {
@@ -86,7 +102,7 @@ export function MissionBoard({ missions, viewerRole }: MissionBoardProps) {
     if (!stillVisible) {
       setActiveId(firstVisible.id);
     }
-  }, [activeId, missions, page, pageCount, visible]);
+  }, [activeId, missions, page, pageCount, pageSize, visible]);
 
   const acceptMission = async (missionId: string) => {
     setFeedback("");
@@ -118,48 +134,81 @@ export function MissionBoard({ missions, viewerRole }: MissionBoardProps) {
   return (
     <section className="space-y-4" onMouseLeave={() => setPopupId(null)}>
       <div className="grid gap-2 md:hidden">
-        {visible.map((mission) => {
-          const canAcceptMission = viewerRole === "ADVENTURER" && mission.status === "OPEN";
-          return (
-            <article key={`mobile-${mission.id}`} className="relative aspect-[210/132] overflow-hidden">
-              <div className="absolute inset-0 bg-[url('/assets/fundo_missao.png')] bg-no-repeat bg-center [background-size:100%_100%]" />
-              <div className="relative flex h-full flex-col justify-center p-3 text-[#1b130f]">
-                <h2 className="line-clamp-1 text-sm font-extrabold leading-tight [text-shadow:0_1px_2px_rgba(255,237,200,0.75)]">
-                  {mission.displayTitle}
-                </h2>
-                <p className="mt-1 line-clamp-2 text-[11px] font-semibold leading-snug [text-shadow:0_1px_2px_rgba(255,237,200,0.72)]">
-                  {mission.displaySummary}
-                </p>
-                <div className="mt-1.5 flex flex-wrap items-center gap-1 text-[10px] font-bold">
-                  <span className={`rounded-full border px-2 py-0.5 ${rankStyle[mission.rank].chip}`}>Rank {mission.rank}</span>
-                  <span className="rounded-full border border-amber-900/35 bg-[#f5e3bf]/92 px-2 py-0.5">{mission.neighborhood}</span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-cyan-700/40 bg-cyan-300/35 px-2 py-0.5 text-cyan-950">
-                    <Image src="/assets/Crystal.png" alt="" aria-hidden width={11} height={11} className="h-2.5 w-2.5 object-contain" />
-                    +{mission.enchantiun}
-                  </span>
-                </div>
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  {canAcceptMission && (
-                    <button
-                      type="button"
-                      disabled={loadingAccept === mission.id}
-                      onClick={() => void acceptMission(mission.id)}
-                      className="rounded-md border border-amber-900/45 bg-[#efd09a]/95 px-2.5 py-1 text-[11px] font-bold text-[#170d09] hover:bg-[#f2d9ab] disabled:opacity-55"
-                    >
-                      {loadingAccept === mission.id ? "Aceitando..." : "Aceitar"}
-                    </button>
-                  )}
-                  <Link
-                    href={`/mission/${mission.id}`}
-                    className="inline-flex rounded-md border border-amber-900/40 bg-[#f5e3bf]/90 px-2.5 py-1 text-[11px] font-bold text-[#1a100b] hover:bg-[#f8e9cc]"
+        <div className="relative aspect-[3/2] w-full overflow-hidden rounded-xl">
+          <Image
+            src="/assets/quadro_guilda.png"
+            alt="Quadro da guilda com missoes"
+            fill
+            priority
+            className="object-contain"
+          />
+          <div className="absolute left-[17.6%] top-[25.2%] h-[53.8%] w-[64.6%]">
+            <div className="grid h-full grid-cols-6 grid-rows-2 gap-px">
+              {visible.map((mission) => {
+                const isActive = mission.id === activeId;
+                return (
+                  <button
+                    key={`mobile-slot-${mission.id}`}
+                    type="button"
+                    onClick={() => setActiveId(mission.id)}
+                    className={`relative h-full w-full overflow-hidden rounded-sm transition duration-150 ${
+                      isActive ? `${rankStyle[mission.rank].glow} ring-2 ring-amber-300/45` : ""
+                    }`}
+                    aria-label={`Missao rank ${mission.rank}`}
                   >
-                    Detalhes da missao
-                  </Link>
-                </div>
+                    <div className="absolute inset-0 bg-[url('/assets/fundo_missao.png')] bg-no-repeat bg-center [background-size:100%_100%]" />
+                    <div className="absolute inset-0 bg-black/8" />
+                    <div className="relative flex h-full items-center justify-center p-1">
+                      <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-extrabold ${rankStyle[mission.rank].chip}`}>
+                        {mission.rank}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {activeMission && (
+          <article className="relative aspect-[210/132] overflow-hidden">
+            <div className="absolute inset-0 bg-[url('/assets/fundo_missao.png')] bg-no-repeat bg-center [background-size:100%_100%]" />
+            <div className="relative flex h-full flex-col justify-center p-3 text-[#1b130f]">
+              <h2 className="line-clamp-1 text-sm font-extrabold leading-tight [text-shadow:0_1px_2px_rgba(255,237,200,0.75)]">
+                {activeMission.displayTitle}
+              </h2>
+              <p className="mt-1 line-clamp-2 text-[11px] font-semibold leading-snug [text-shadow:0_1px_2px_rgba(255,237,200,0.72)]">
+                {activeMission.displaySummary}
+              </p>
+              <div className="mt-1.5 flex flex-wrap items-center gap-1 text-[10px] font-bold">
+                <span className={`rounded-full border px-2 py-0.5 ${rankStyle[activeMission.rank].chip}`}>Rank {activeMission.rank}</span>
+                <span className="rounded-full border border-amber-900/35 bg-[#f5e3bf]/92 px-2 py-0.5">{activeMission.neighborhood}</span>
+                <span className="inline-flex items-center gap-1 rounded-full border border-cyan-700/40 bg-cyan-300/35 px-2 py-0.5 text-cyan-950">
+                  <Image src="/assets/Crystal.png" alt="" aria-hidden width={11} height={11} className="h-2.5 w-2.5 object-contain" />
+                  +{activeMission.enchantiun}
+                </span>
               </div>
-            </article>
-          );
-        })}
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {viewerRole === "ADVENTURER" && activeMission.status === "OPEN" && (
+                  <button
+                    type="button"
+                    disabled={loadingAccept === activeMission.id}
+                    onClick={() => void acceptMission(activeMission.id)}
+                    className="rounded-md border border-amber-900/45 bg-[#efd09a]/95 px-2.5 py-1 text-[11px] font-bold text-[#170d09] hover:bg-[#f2d9ab] disabled:opacity-55"
+                  >
+                    {loadingAccept === activeMission.id ? "Aceitando..." : "Aceitar"}
+                  </button>
+                )}
+                <Link
+                  href={`/mission/${activeMission.id}`}
+                  className="inline-flex rounded-md border border-amber-900/40 bg-[#f5e3bf]/90 px-2.5 py-1 text-[11px] font-bold text-[#1a100b] hover:bg-[#f8e9cc]"
+                >
+                  Detalhes da missao
+                </Link>
+              </div>
+            </div>
+          </article>
+        )}
       </div>
 
       <div className="relative hidden aspect-[3/2] w-full overflow-visible rounded-2xl md:block">
