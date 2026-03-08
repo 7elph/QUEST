@@ -16,12 +16,15 @@ Formato baseado em "Keep a Changelog" e versionamento semantico adaptado ao plan
 - Modelo `RuntimeSetting` para persistir configuracoes globais de runtime no banco.
 - Script operacional `uploads:cleanup` para remover uploads orfaos antigos (`scripts/cleanup-orphan-uploads.mjs`).
 - Testes E2E de seguranca para callback/login e RBAC entre aventureiros (`tests/e2e/rbac.spec.ts`).
+- Script dedicado de tunel `npm run tunnel` com reaproveitamento de sessao ngrok ativa e sync automatico do `NEXTAUTH_URL`.
+- Comando `npm run tunnel:status` para consultar tunel ativo sem abrir nova sessao ngrok.
 
 ### Changed
 - `NEXTAUTH_URL` ajustado para dominio ngrok em ambiente externo.
 - `.env.example` alinhado com `NEXTAUTH_URL` atual do ngrok para evitar erro de callback no auth em ambiente externo.
 - `NEXTAUTH_URL` atualizado novamente para o novo dominio do tunel ngrok (`2a12-179-220-122-62.ngrok-free.app`).
 - `NEXTAUTH_URL` atualizado para o novo dominio do tunel ngrok (`4223-179-220-122-62.ngrok-free.app`).
+- `.env.example` voltou a usar `NEXTAUTH_URL` local (`http://localhost:3000`) e o tunel externo passa a ser configurado pelo comando dedicado.
 - Removido `trustHost` de `authOptions` por incompatibilidade de tipagem/comportamento com `next-auth` v4 (`AuthOptions`).
 - Fluxos de LLM (screening de missao, triagem de disputa, simulacao e narrativa RPG) passam a respeitar runtime config central, nao apenas variaveis fixas de `.env`.
 - Aba `Pipeline LLM` no admin passou a permitir controle completo em runtime (enable/disable, base URL, modelos por etapa, timeouts, retry, warmup e teste).

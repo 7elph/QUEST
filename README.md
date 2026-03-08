@@ -166,12 +166,19 @@ NEXT_PUBLIC_SENTRY_DSN=...
 
 ## Setup local
 
-Comandos unicos:
+Comandos principais:
 
 ```bash
 npm run quest:all
 npm run quest:fast
+npm run tunnel
+npm run tunnel:status
 ```
+
+Fluxo recomendado (ngrok separado):
+
+1. Terminal 1: suba o app com `npm run quest:fast` (ou `npm run quest:all`).
+2. Terminal 2: suba o tunel com `npm run tunnel`.
 
 Credenciais demo (geradas no seed):
 
@@ -198,7 +205,10 @@ O `quest:all` agora faz:
 - O link do ngrok espelha o app inteiro, nao apenas uma pagina.
 - Se abriu `https://SEU-LINK.ngrok-free.app`, voce pode navegar em todas as rotas (`/home`, `/profile`, `/ranking`, `/enterprise`, `/admin`).
 - Use sempre o link completo no celular e entre normalmente com login/senha.
-- Com `npm run quest:all -- --ngrok`, o script detecta a URL publica e ajusta `NEXTAUTH_URL` em runtime para manter login/sessao no tunel.
+- Para manter ngrok separado do app, deixe `NGROK_ENABLED=false` e use `npm run tunnel`.
+- `npm run tunnel` reaproveita tunel ativo (evita sessao duplicada), e sincroniza `NEXTAUTH_URL` no `.env`.
+- `npm run tunnel:status` mostra se ja existe tunel ativo sem abrir novo processo.
+- Alternativa integrada: `npm run quest:all -- --ngrok` para subir ngrok dentro do pipeline.
 - Se houver erro `ERR_NGROK_108`, encerre agentes antigos e mantenha so um tunel ativo na conta free.
 
 Flags uteis:
@@ -261,6 +271,8 @@ npm run test
 npm run test:e2e
 npm run quest:all
 npm run quest:fast
+npm run tunnel
+npm run tunnel:status
 npm run assets:generate
 ```
 

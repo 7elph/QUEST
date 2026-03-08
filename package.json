@@ -1,6 +1,6 @@
 {
   "name": "quest-app",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,6 +12,8 @@
     "test:e2e": "playwright test",
     "quest:all": "node scripts/quest-all.mjs",
     "quest:fast": "node scripts/quest-all.mjs --skip-quality --skip-ollama",
+    "tunnel": "node scripts/ngrok-tunnel.mjs",
+    "tunnel:status": "node scripts/ngrok-tunnel.mjs --status",
     "uploads:cleanup": "node scripts/cleanup-orphan-uploads.mjs",
     "assets:generate": "node scripts/generate-brand-assets.mjs",
     "seed": "tsx prisma/seed.ts",
