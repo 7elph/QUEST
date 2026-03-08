@@ -18,6 +18,7 @@ Formato baseado em "Keep a Changelog" e versionamento semantico adaptado ao plan
 - Testes E2E de seguranca para callback/login e RBAC entre aventureiros (`tests/e2e/rbac.spec.ts`).
 - Script dedicado de tunel `npm run tunnel` com reaproveitamento de sessao ngrok ativa e sync automatico do `NEXTAUTH_URL`.
 - Comando `npm run tunnel:status` para consultar tunel ativo sem abrir nova sessao ngrok.
+- Componente `ProfileCharacterViewer` para renderizar personagem 3D (`.glb`) no perfil com `model-viewer`.
 
 ### Changed
 - `NEXTAUTH_URL` ajustado para dominio ngrok em ambiente externo.
@@ -49,6 +50,7 @@ Formato baseado em "Keep a Changelog" e versionamento semantico adaptado ao plan
 - `next.config.mjs` migrou o ajuste de log do Sentry para `webpack.treeshake.removeDebugLogging`.
 - Upload passou a aplicar limite total por usuario (`UPLOAD_USER_MAX_BYTES`) antes de aceitar novos arquivos.
 - `scripts/quest-all.mjs` agora reaproveita tunel ngrok local existente e evita abrir sessao duplicada (mitiga `ERR_NGROK_108` em uso diario).
+- Cabecalho do perfil agora exibe avatar 3D "vivo" com auto-rotacao e leve movimento, usando modelos da pasta `public/assets/personagens`.
 
 ### Fixed
 - Logger de backend passou a usar implementacao sem worker thread para evitar falhas intermitentes em `next dev` no Windows (`vendor-chunks/lib/worker.js`).

@@ -9,6 +9,7 @@ import { computePerformanceScore } from "@/lib/ranking";
 import { AdventurerAssessment } from "@/components/app/adventurer-assessment";
 import { storeCatalog } from "@/lib/store";
 import { getMissionRewardPreview } from "@/lib/mission-rewards";
+import { ProfileCharacterViewer } from "@/components/app/profile-character-viewer";
 
 const rankTargets = [
   { rank: "E", minXP: 0, nextRank: "D", nextMinXP: 100 },
@@ -49,6 +50,15 @@ const missionStatusLabel: Record<string, string> = {
   COMPLETED: "Concluida",
   DISPUTED: "Disputa",
   CANCELLED: "Cancelada",
+};
+
+const rankCharacterModel: Record<"E" | "D" | "C" | "B" | "A" | "S", string> = {
+  E: "/assets/personagens/Characters/gltf/Rogue.glb",
+  D: "/assets/personagens/Characters/gltf/Rogue_Hooded.glb",
+  C: "/assets/personagens/Characters/gltf/Ranger.glb",
+  B: "/assets/personagens/Characters/gltf/Mage.glb",
+  A: "/assets/personagens/Characters/gltf/Knight.glb",
+  S: "/assets/personagens/Characters/gltf/Barbarian.glb",
 };
 
 function getRankProgress(xp: number, rank: string) {
@@ -230,6 +240,10 @@ export default async function ProfilePage() {
   const avatarSrc = user.profile?.avatarUrl?.startsWith("/")
     ? user.profile.avatarUrl
     : "/assets/icones/Equipment/Wizard Hat.png";
+  const configuredModel = user.profile?.avatarUrl?.toLowerCase().endsWith(".glb")
+    ? user.profile.avatarUrl
+    : null;
+  const characterModelSrc = configuredModel ?? rankCharacterModel[rank];
   const healthCap = rank === "S" ? 2500 : (rankTargets.find((item) => item.rank === rank)?.nextMinXP ?? 2000);
   const healthPct = Math.max(5, Math.min(100, Math.round((enchantiunBalance / healthCap) * 100)));
   const staminaPct = Math.max(10, Math.min(100, Math.round(perf.punctuality * 100)));
@@ -240,10 +254,14 @@ export default async function ProfilePage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4">
             <div className="quest-panel quest-panel-texture rounded-xl border border-amber-200/30 bg-black/35 p-3">
-              <div className="mx-auto h-[84px] w-[84px]">
-                <Image src={avatarSrc} alt="Avatar do usuario" width={84} height={84} className="h-full w-full object-contain" />
+              <div className="mx-auto h-[112px] w-[112px]">
+                <ProfileCharacterViewer
+                  modelSrc={characterModelSrc}
+                  posterSrc={avatarSrc}
+                  alt={`Personagem de perfil de ${name}`}
+                />
               </div>
-              <p className="mt-2 text-center text-xs text-amber-100/80">Retrato</p>
+              <p className="mt-2 text-center text-xs text-amber-100/80">Avatar vivo</p>
             </div>
             <div>
               <p className="text-xs tracking-[0.18em] text-amber-200/80">PERFIL DO AVENTUREIRO</p>
