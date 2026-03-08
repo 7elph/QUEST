@@ -12,6 +12,16 @@ import { MissionChecklistProgress } from "@/components/app/mission-checklist-pro
 import { getCategoryDisplay } from "@/lib/mission-catalog";
 import { getMissionRewardPreview } from "@/lib/mission-rewards";
 import { canViewMissionDetails } from "@/lib/mission-visibility";
+import { missionCategoryIcons } from "@/lib/quest-icons";
+
+const rankChipClass: Record<"E" | "D" | "C" | "B" | "A" | "S", string> = {
+  E: "border-slate-300/50 bg-slate-700/90 text-slate-100",
+  D: "border-emerald-300/50 bg-emerald-700/90 text-emerald-100",
+  C: "border-sky-300/50 bg-sky-700/90 text-sky-100",
+  B: "border-violet-300/50 bg-violet-700/90 text-violet-100",
+  A: "border-amber-300/50 bg-amber-700/90 text-amber-100",
+  S: "border-fuchsia-300/50 bg-fuchsia-700/90 text-fuchsia-100",
+};
 
 export default async function MissionDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerAuthSession();
@@ -77,53 +87,66 @@ export default async function MissionDetailPage({ params }: { params: { id: stri
     : canSeeOwnEvidence
       ? mission.submissions.filter((submission) => submission.adventurerId === session?.user?.id)
       : [];
-  const surfaceClass =
-    "relative overflow-hidden rounded-xl border border-[#6a4029]/35";
+  const surfaceClass = "relative mx-auto w-[min(96vw,980px)] overflow-hidden";
   const surfaceBackgroundClass =
     "absolute inset-0 bg-[url('/assets/fundo_missao.png')] bg-no-repeat bg-center [background-size:100%_100%]";
+  const summary = isAdventurer ? mission.rpgNarrative ?? mission.narrative : mission.scope;
+  const title = isAdventurer ? mission.rpgTitle ?? mission.title : mission.title;
+  const deadlineLabel = new Date(mission.deadlineAt).toLocaleString("pt-BR");
 
   return (
     <section className={surfaceClass}>
       <div className={surfaceBackgroundClass} />
-      <div className="relative space-y-5 p-5 text-[#1b130f]">
-        <div>
-          <p className="text-xs font-semibold text-[#5a3829]/85">
-            {getCategoryDisplay(mission.category)} • {mission.status} • min rank {mission.minRank}
-          </p>
-          <h1 className="mt-1 text-3xl font-bold text-[#1b130f]">
-            {isAdventurer ? mission.rpgTitle ?? mission.title : mission.title}
-          </h1>
-          <p className="mt-2 text-sm text-[#2a1a13]">Patrono: {mission.patron.nick ?? mission.patron.email}</p>
-          <p className="text-sm text-[#2a1a13]">Atribuida para: {mission.assignedUser?.nick ?? mission.assignedUser?.email ?? "-"}</p>
-          <p className="text-sm text-[#2a1a13]">
-            Local: {mission.city}/{mission.state} - {mission.neighborhood}
-          </p>
-          <p className="text-sm text-[#2a1a13]">Tipo: {mission.missionType}</p>
-          <p className="text-sm text-[#2a1a13]">Formato desejado: {mission.desiredFormat ?? "-"}</p>
-          <p className="text-sm text-[#2a1a13]">Max revisoes: {mission.maxRevisions}</p>
-          <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2a1a13]">
-            <Image src="/assets/Crystal.png" alt="" aria-hidden width={15} height={15} className="h-[15px] w-[15px] object-contain" />
-            Pagamento previsto: +{rewardPreview.enchantiun} Enchantiun
-          </p>
-          {rewardPreview.drop && (
-            <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2a1a13]">
-              <Image src={rewardPreview.drop.iconPath} alt="" aria-hidden width={15} height={15} className="h-[15px] w-[15px] object-contain" />
-              Drop possivel: {rewardPreview.drop.name}
-            </p>
-          )}
-          <div className="mt-2">
-            <SlaCountdown deadlineAt={mission.deadlineAt} completed={mission.status === "COMPLETED"} />
+      <div className="relative mx-auto w-[92%] space-y-5 py-6 text-[#1b130f] md:py-8">
+        <article className="relative mx-auto aspect-[210/330] w-[min(94vw,420px)] overflow-hidden">
+          <div className={surfaceBackgroundClass} />
+          <div className="relative flex h-full flex-col p-6 text-[#1b130f]">
+            <div className="mx-auto flex h-full w-[90%] flex-col justify-center">
+              <h1 className="line-clamp-2 text-base font-extrabold leading-tight [text-shadow:0_1px_2px_rgba(255,237,200,0.75)]">
+                {title}
+              </h1>
+              <p className="mt-2 line-clamp-6 text-xs font-bold leading-relaxed [text-shadow:0_1px_2px_rgba(255,237,200,0.72)]">
+                {summary}
+              </p>
+
+              <div className="mt-3 text-[11px] font-bold leading-relaxed [text-shadow:0_1px_2px_rgba(255,237,200,0.66)]">
+                <p>Patrono: {mission.patron.nick ?? mission.patron.email}</p>
+                <p>Atribuida para: {mission.assignedUser?.nick ?? mission.assignedUser?.email ?? "-"}</p>
+                <p>Local: {mission.city}/{mission.state} - {mission.neighborhood}</p>
+                <p>Prazo: {deadlineLabel}</p>
+                {rewardPreview.drop && (
+                  <p className="inline-flex items-center gap-1.5">
+                    <Image src={rewardPreview.drop.iconPath} alt="" aria-hidden width={12} height={12} className="h-3 w-3 object-contain" />
+                    Drop: {rewardPreview.drop.name}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[10px] font-bold">
+                <span className="inline-flex items-center gap-1 rounded-full border border-amber-900/35 bg-[#f5e3bf]/92 px-2 py-1">
+                  <Image src={missionCategoryIcons[mission.category]} alt="" aria-hidden width={12} height={12} className="h-3 w-3 object-contain" />
+                  {getCategoryDisplay(mission.category)}
+                </span>
+                <span className="rounded-full border border-amber-900/35 bg-[#f5e3bf]/92 px-2 py-1">{mission.status}</span>
+                <span className={`rounded-full border px-2 py-1 ${rankChipClass[mission.minRank]}`}>Rank {mission.minRank}</span>
+                <span className="rounded-full border border-amber-900/35 bg-[#f5e3bf]/92 px-2 py-1">{mission.neighborhood}</span>
+                <span className="inline-flex items-center gap-1 rounded-full border border-cyan-700/40 bg-cyan-300/35 px-2 py-1 text-cyan-950">
+                  <Image src="/assets/Crystal.png" alt="" aria-hidden width={12} height={12} className="h-3 w-3 object-contain" />
+                  +{rewardPreview.enchantiun}
+                </span>
+              </div>
+
+              <div className="mt-2 text-[11px] font-semibold text-[#2a1a13]">
+                <SlaCountdown deadlineAt={mission.deadlineAt} completed={mission.status === "COMPLETED"} />
+              </div>
+              {mission.rpgRewardFlavor && <p className="mt-2 text-xs font-semibold text-[#5a3829]">{mission.rpgRewardFlavor}</p>}
+            </div>
           </div>
-          {isAdventurer ? (
-            <>
-              <p className="mt-3 text-[#2a1a13]">{mission.rpgNarrative ?? mission.narrative}</p>
-              {mission.rpgRewardFlavor && <p className="mt-2 text-sm font-semibold text-[#5a3829]">{mission.rpgRewardFlavor}</p>}
-            </>
-          ) : (
-            <p className="mt-3 text-[#2a1a13]">{mission.scope}</p>
-          )}
-          <h2 className="mt-4 font-semibold text-[#1b130f]">Condicoes de Vitoria</h2>
-          <ul className="ml-5 list-disc space-y-1 text-sm text-[#2a1a13]">
+        </article>
+
+        <div className="border-t border-[#5a3829]/20 pt-4">
+          <h2 className="font-semibold text-[#1b130f]">Condicoes de Vitoria</h2>
+          <ul className="ml-5 mt-2 list-disc space-y-1 text-sm text-[#2a1a13]">
             {mission.victoryConditions.map((item, idx) => <li key={idx}>{item}</li>)}
           </ul>
         </div>
